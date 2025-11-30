@@ -1,0 +1,10 @@
+[project]
+name = "tlaloc"
+version = "0.1.0"
+description = "A SaaS metric analysis library for rutine tasks"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pyspark>=4.0.1",
+    "toolz>=1.1.0",
+]
