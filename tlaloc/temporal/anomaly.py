@@ -28,22 +28,26 @@ def ewma(dataframe: DataFrame, col: str, span: int, pct_tolerance: float = 0.1, 
     alpha = 2 / (span + 1) # 0.4
 
     return dataframe.withColumn(
-    "ewma_array",
-    F.aggregate(
-        F.col(col),         
-        F.struct(            
-            F.array_repeat(F.col(col)[0].cast(T.DoubleType()), 1).alias("ewma_list"),
-            F.col(col)[0].cast(T.DoubleType()).alias("last_ewma")                     
-        ),        
-        lambda acc, y_t: F.struct(
-            F.concat(
-                acc["ewma_list"],
-                F.array(
+        "ewma_array",
+        F.slice(
+            F.aggregate(
+                F.col(col),         
+                F.struct(            
+                    F.array_repeat(F.col(col)[0].cast(T.DoubleType()), 1).alias("ewma_list"),
+                    F.col(col)[0].cast(T.DoubleType()).alias("last_ewma")                     
+                ),        
+                lambda acc, y_t: F.struct(
+                    F.concat(
+                        acc["ewma_list"],
+                        F.array(
+                            y_t * alpha + acc["last_ewma"] * (1 - alpha)
+                        )
+                    ),
                     y_t * alpha + acc["last_ewma"] * (1 - alpha)
-                )
+                ),
+                lambda acc: acc["ewma_list"]
             ),
-            y_t * alpha + acc["last_ewma"] * (1 - alpha)
-        ),
-        lambda acc: acc["ewma_list"]
+            2,
+            F.size(col)
+        )
     )
-)
