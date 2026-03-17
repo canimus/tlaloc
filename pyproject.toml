@@ -5,6 +5,14 @@ description = "A SaaS metric analysis library for rutine tasks"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "numpy>=2.4.3",
     "pyspark>=4.0.1",
     "toolz>=1.1.0",
 ]
+
+[build-system]
+requires = ["hatchling>=1.19"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["tlaloc/**"]
