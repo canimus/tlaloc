@@ -1,6 +1,6 @@
 [project]
 name = "tlaloc"
-version = "0.1.2"
+version = "0.1.3"
 description = "A SaaS metric analysis library for rutine tasks"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -18,7 +18,7 @@ build-backend = "hatchling.build"
 include = ["tlaloc/**"]
 
 [tool.bumpversion]
-current_version = "0.1.2"
+current_version = "0.1.3"
 commit = true
 tag = true
 tag_name = "v{new_version}"
