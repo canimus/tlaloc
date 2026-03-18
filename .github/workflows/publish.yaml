@@ -29,7 +29,10 @@ jobs:
         uses: actions/checkout@v4.2.2        # ← latest patch with Node 24 support
 
       - name: Set up Python
-        uses: actions/setup-python@v5.4.0    # ← latest patch with Node 24 support
+        uses: actions/setup-python@v5.4.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
 
       - name: Install build tools
         run: pip install hatch bump-my-version
