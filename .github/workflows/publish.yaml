@@ -14,25 +14,23 @@ on:
           - minor
           - major
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ← opts into Node.js 24 now
+
 jobs:
   bump-and-publish:
     runs-on: ubuntu-latest
-    environment: pypi  # must match the trusted publisher config on PyPI
+    environment: pypi
     permissions:
-      contents: write   # to push the version bump commit + tag
-      id-token: write   # required for OIDC trusted publishing
+      contents: write
+      id-token: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+        uses: actions/checkout@v4.2.2        # ← latest patch with Node 24 support
 
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+        uses: actions/setup-python@v5.4.0    # ← latest patch with Node 24 support
 
       - name: Install build tools
         run: pip install hatch bump-my-version
@@ -43,17 +41,16 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump version
-        run: |
-          bump-my-version bump ${{ github.event.inputs.bump }}
-          echo "NEW_VERSION=$(bump-my-version show current_version)" >> $GITHUB_ENV
+        run: bump-my-version bump ${{ github.event.inputs.bump }}
+
+      - name: Get new version
+        run: echo "NEW_VERSION=$(bump-my-version show current_version)" >> $GITHUB_ENV
 
       - name: Push version bump commit and tag
-        run: |
-          git push origin main --follow-tags
+        run: git push origin main --follow-tags
 
       - name: Build wheel and sdist
         run: hatch build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        # No username/password/token needed — trusted publishing via OIDC
