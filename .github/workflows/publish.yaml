@@ -1,0 +1,59 @@
+# .github/workflows/publish.yml
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  bump-and-publish:
+    runs-on: ubuntu-latest
+    environment: pypi  # must match the trusted publisher config on PyPI
+    permissions:
+      contents: write   # to push the version bump commit + tag
+      id-token: write   # required for OIDC trusted publishing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: pip install hatch bump-my-version
+
+      - name: Configure git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        run: |
+          bump-my-version bump ${{ github.event.inputs.bump }}
+          echo "NEW_VERSION=$(bump-my-version show current_version)" >> $GITHUB_ENV
+
+      - name: Push version bump commit and tag
+        run: |
+          git push origin main --follow-tags
+
+      - name: Build wheel and sdist
+        run: hatch build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # No username/password/token needed — trusted publishing via OIDC

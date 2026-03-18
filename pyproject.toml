@@ -16,3 +16,30 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build]
 include = ["tlaloc/**"]
+
+[tool.bumpversion]
+current_version = "0.1.0"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "src/tlaloc/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+```
+
+---
+
+## How to trigger a release
+
+Go to **Actions → Publish to PyPI → Run workflow** and pick `patch`, `minor`, or `major`:
+```
+patch  →  0.1.0 → 0.1.1   (bug fixes)
+minor  →  0.1.0 → 0.2.0   (new features)
+major  →  0.1.0 → 1.0.0   (breaking changes)
