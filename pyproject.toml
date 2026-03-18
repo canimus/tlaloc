@@ -1,6 +1,6 @@
 [project]
 name = "tlaloc"
-version = "0.1.0"
+version = "0.1.1"
 description = "A SaaS metric analysis library for rutine tasks"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -18,7 +18,7 @@ build-backend = "hatchling.build"
 include = ["tlaloc/**"]
 
 [tool.bumpversion]
-current_version = "0.1.0"
+current_version = "0.1.1"
 commit = true
 tag = true
 tag_name = "v{new_version}"
@@ -32,14 +32,5 @@ replace = '__version__ = "{new_version}"'
 filename = "pyproject.toml"
 search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
-```
 
----
 
-## How to trigger a release
-
-Go to **Actions → Publish to PyPI → Run workflow** and pick `patch`, `minor`, or `major`:
-```
-patch  →  0.1.0 → 0.1.1   (bug fixes)
-minor  →  0.1.0 → 0.2.0   (new features)
-major  →  0.1.0 → 1.0.0   (breaking changes)
