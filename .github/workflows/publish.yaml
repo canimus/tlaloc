@@ -14,9 +14,6 @@ on:
           - minor
           - major
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ← opts into Node.js 24 now
-
 jobs:
   bump-and-publish:
     runs-on: ubuntu-latest
@@ -24,6 +21,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # ← moved here, job level
 
     steps:
       - name: Checkout
