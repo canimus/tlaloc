@@ -34,3 +34,39 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "diff-cover>=9.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = "--strict-markers -q"
+
+[tool.coverage.run]
+source = ["src"]
+branch = true                  # Track branch coverage, not just line coverage
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/conftest.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 80                # Global coverage threshold
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "pass",
+]
+
+[tool.diff_cover]
+compare_branch = "origin/main"
+fail_under = 80
+include_untracked = false

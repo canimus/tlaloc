@@ -1,0 +1,81 @@
+name: Test Coverage Check
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true          # Caches the uv cache dir across runs
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install dependencies
+        run: uv sync --frozen --group dev
+        # --frozen   → fails if uv.lock is out of date (reproducible builds)
+        # --group dev → installs dev dependencies (pytest, diff-cover, etc.)
+
+      - name: Run tests with coverage
+        run: |
+          uv run pytest \
+            --cov=src \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term-missing \
+            --cov-fail-under=80 \
+            -v
+
+      - name: Check diff coverage (new code only)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_BRANCH="origin/${{ github.base_ref }}"
+          else
+            BASE_BRANCH="HEAD~1"
+          fi
+
+          uv run diff-cover coverage.xml \
+            --compare-branch=$BASE_BRANCH \
+            --fail-under=80 \
+            --html-report=diff-coverage.html \
+            --markdown-report=diff-coverage.md
+
+      - name: Post coverage comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('diff-coverage.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📊 Diff Coverage Report\n\n${report}`,
+            });
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage.xml
+            diff-coverage.html
+            diff-coverage.md
