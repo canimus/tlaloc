@@ -28,6 +28,7 @@ def week_of_year(dataframe: DataFrame, date: str = "date", week: str = "week") -
         )
     )
 
+
 def weeklyfy(dataframe: DataFrame, pk: Union[None|str|List[str]] = None, agg: Union[Column, Callable, List[Callable]] = [F.count("date")], fill: bool = True) -> DataFrame:
     """Pivots weeks and counters for key"""
     pivot = (
@@ -38,11 +39,11 @@ def weeklyfy(dataframe: DataFrame, pk: Union[None|str|List[str]] = None, agg: Un
     )
     if not isinstance(agg, (tuple,list)):
         agg = [agg]
-        
+
     pivot = mc("agg", *agg)(pivot)
 
     # Impute strategy
     if fill:
-        pivpt = pivot.fillna(0)
+        pivot = pivot.fillna(0)
 
     return pivot
